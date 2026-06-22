@@ -6,6 +6,7 @@ import { AppModule } from './core/app.module'
 import { SwaggerModule } from '@nestjs/swagger'
 import { getCorsConfig } from './core/config/cors.config'
 import { getSwaggerConfig } from './core/config/swagger.config'
+import { getValidationPipeConfig } from './core/config/validation-pipe.config'
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule)
@@ -13,11 +14,8 @@ async function bootstrap() {
 	const logger = new Logger('GatewayService')
 
 
-	app.useGlobalPipes(new ValidationPipe({
-		transform: true,
-		whitelist: true,
-	}))
-	
+	app.useGlobalPipes(new ValidationPipe(getValidationPipeConfig()))
+
 	app.enableCors(getCorsConfig(config))
 
 	const swaggerConfig = getSwaggerConfig(config)
