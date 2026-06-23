@@ -13,7 +13,7 @@ export class IdentifierValidator implements ValidatorConstraintInterface{
        }
        else if(object.type === 'phone'){
         return (
-            typeof value === 'string' && /^[0-9]{10}$/.test(value)
+            typeof value === 'string' && /^\+[1-9]\d{6,14}$/.test(value)
         )
        }
        return false

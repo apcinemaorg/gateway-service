@@ -5,7 +5,7 @@ import { IdentifierValidator } from "src/shared/validators/identifier.validator"
 export class SendOtpRequest {
     @ApiProperty({
         description: 'The identifier of the user',
-        examples: ['+5511999999', 'test@example.com'],
+        examples: ['+421950353687', 'test@example.com'],
     })
     @IsString()
     @Validate(IdentifierValidator)
