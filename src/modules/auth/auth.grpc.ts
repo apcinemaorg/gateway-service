@@ -1,5 +1,5 @@
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
-import { AuthServiceClient, SendOtpRequest } from "@apcinema/contracts/gen/auth";
+import { AuthServiceClient, SendOtpRequest, VerifyOtpRequest } from "@apcinema/contracts/gen/auth";
 import type { ClientGrpc } from "@nestjs/microservices";
 
 @Injectable()
@@ -16,5 +16,7 @@ export class AuthGrpcClient implements OnModuleInit {
         return this.authService.sendOtp(request)
     }
 
-
+    public verifyOtp(request: VerifyOtpRequest) {
+        return this.authService.verifyOtp(request)
+    }
 }
