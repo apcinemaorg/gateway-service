@@ -6,8 +6,9 @@ import {
     HttpStatus,
     Logger,
 } from '@nestjs/common';
-import { status as GrpcStatus } from '@grpc/grpc-js';
 import type { Response } from 'express';
+
+import { grpcToHttp } from '../utils/grpc-to-http';
 
 interface GrpcServiceError {
     code: number;
@@ -17,7 +18,7 @@ interface GrpcServiceError {
 
 interface ParsedGrpcDetails {
     code?: string;
-    message: string;
+    message: string | string[];
 }
 
 interface HttpErrorBody {
@@ -26,14 +27,6 @@ interface HttpErrorBody {
     code: string;
     message: string | string[];
 }
-
-const GRPC_TO_HTTP: Partial<Record<number, { status: number; error: string }>> = {
-    [GrpcStatus.INVALID_ARGUMENT]: { status: HttpStatus.BAD_REQUEST, error: 'Bad Request' },
-    [GrpcStatus.NOT_FOUND]: { status: HttpStatus.NOT_FOUND, error: 'Not Found' },
-    [GrpcStatus.FAILED_PRECONDITION]: { status: HttpStatus.BAD_REQUEST, error: 'Bad Request' },
-    [GrpcStatus.UNAUTHENTICATED]: { status: HttpStatus.UNAUTHORIZED, error: 'Unauthorized' },
-    [GrpcStatus.UNAVAILABLE]: { status: HttpStatus.SERVICE_UNAVAILABLE, error: 'Service Unavailable' },
-};
 
 @Catch()
 export class GrpcExceptionFilter implements ExceptionFilter {
@@ -85,15 +78,13 @@ export class GrpcExceptionFilter implements ExceptionFilter {
             return null;
         }
 
-        const mapping = GRPC_TO_HTTP[serviceError.code] ?? {
-            status: HttpStatus.INTERNAL_SERVER_ERROR,
-            error: 'Internal Server Error',
-        };
+        const statusCode = grpcToHttp[serviceError.code] ?? HttpStatus.INTERNAL_SERVER_ERROR;
+        const error = HttpStatus[statusCode] ?? 'Error';
         const details = this.parseDetails(serviceError.details ?? serviceError.message ?? 'Unknown error');
 
         return {
-            statusCode: mapping.status,
-            error: mapping.error,
+            statusCode,
+            error,
             code: details.code ?? 'GRPC_ERROR',
             message: details.message,
         };
@@ -104,7 +95,11 @@ export class GrpcExceptionFilter implements ExceptionFilter {
             return exception;
         }
 
-        if (typeof exception === 'object' && exception !== null && 'cause' in exception) {
+        if (
+            typeof exception === 'object' &&
+            exception !== null &&
+            'cause' in exception
+        ) {
             const cause = (exception as { cause?: unknown }).cause;
             if (this.isGrpcServiceError(cause)) {
                 return cause;
@@ -128,7 +123,7 @@ export class GrpcExceptionFilter implements ExceptionFilter {
             const parsed: unknown = JSON.parse(raw);
             if (typeof parsed === 'object' && parsed !== null && 'message' in parsed) {
                 const record = parsed as Record<string, unknown>;
-                if (typeof record.message === 'string') {
+                if (typeof record.message === 'string' || Array.isArray(record.message)) {
                     return {
                         code: typeof record.code === 'string' ? record.code : undefined,
                         message: record.message,
@@ -136,7 +131,7 @@ export class GrpcExceptionFilter implements ExceptionFilter {
                 }
             }
         } catch {
-            // plain text details
+            return { code: undefined, message: raw };
         }
 
         return { message: raw };
