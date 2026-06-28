@@ -1,4 +1,7 @@
-import { BadRequestException, type ValidationPipeOptions } from "@nestjs/common";
+import { BadRequestException, HttpStatus, type ValidationPipeOptions } from '@nestjs/common';
+
+import { ErrorCode } from '../../shared/enums/error-code.enum';
+import { createHttpError } from '../../shared/utils/http-error.util';
 
 export function getValidationPipeConfig(): ValidationPipeOptions {
     return {
@@ -9,12 +12,9 @@ export function getValidationPipeConfig(): ValidationPipeOptions {
                 error.constraints ? Object.values(error.constraints) : [],
             );
 
-            return new BadRequestException({
-                statusCode: 400,
-                error: 'Bad Request',
-                code: 'VALIDATION_ERROR',
-                message,
-            });
+            return new BadRequestException(
+                createHttpError(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_ERROR, message),
+            );
         },
-    }
+    };
 }

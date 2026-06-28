@@ -8,7 +8,15 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 
+import type { HttpErrorBody } from '../dto/error.response';
+import { ErrorCode } from '../enums/error-code.enum';
 import { grpcToHttp } from '../utils/grpc-to-http';
+import {
+    createHttpError,
+    createInternalError,
+    normalizeHttpExceptionBody,
+    parseGrpcDetails,
+} from '../utils/http-error.util';
 
 interface GrpcServiceError {
     code: number;
@@ -16,16 +24,8 @@ interface GrpcServiceError {
     message?: string;
 }
 
-interface ParsedGrpcDetails {
-    code?: string;
-    message: string | string[];
-}
-
-interface HttpErrorBody {
-    statusCode: number;
-    error: string;
-    code: string;
-    message: string | string[];
+function hasCause(value: unknown): value is { cause: unknown } {
+    return typeof value === 'object' && value !== null && 'cause' in value;
 }
 
 @Catch()
@@ -47,29 +47,18 @@ export class GrpcExceptionFilter implements ExceptionFilter {
 
         if (exception instanceof HttpException) {
             const statusCode = exception.getStatus();
-            const body = exception.getResponse();
-
-            if (typeof body === 'object' && body !== null) {
-                response.status(statusCode).json(body);
-                return;
-            }
-
-            response.status(statusCode).json({
+            const body = normalizeHttpExceptionBody(
                 statusCode,
-                error: HttpStatus[statusCode] ?? 'Error',
-                code: 'HTTP_ERROR',
-                message: typeof body === 'string' ? body : exception.message,
-            });
+                exception.getResponse(),
+                exception.message,
+            );
+
+            response.status(statusCode).json(body);
             return;
         }
 
         this.logger.error(exception);
-        response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-            error: 'Internal Server Error',
-            code: 'INTERNAL_ERROR',
-            message: 'Something went wrong',
-        });
+        response.status(HttpStatus.INTERNAL_SERVER_ERROR).json(createInternalError());
     }
 
     private toHttpErrorFromGrpc(exception: unknown): HttpErrorBody | null {
@@ -79,15 +68,15 @@ export class GrpcExceptionFilter implements ExceptionFilter {
         }
 
         const statusCode = grpcToHttp[serviceError.code] ?? HttpStatus.INTERNAL_SERVER_ERROR;
-        const error = HttpStatus[statusCode] ?? 'Error';
-        const details = this.parseDetails(serviceError.details ?? serviceError.message ?? 'Unknown error');
+        const details = parseGrpcDetails(
+            serviceError.details ?? serviceError.message ?? 'Unknown error',
+        );
 
-        return {
+        return createHttpError(
             statusCode,
-            error,
-            code: details.code ?? 'GRPC_ERROR',
-            message: details.message,
-        };
+            details.code ?? ErrorCode.GRPC_ERROR,
+            details.message,
+        );
     }
 
     private extractGrpcError(exception: unknown): GrpcServiceError | null {
@@ -95,15 +84,8 @@ export class GrpcExceptionFilter implements ExceptionFilter {
             return exception;
         }
 
-        if (
-            typeof exception === 'object' &&
-            exception !== null &&
-            'cause' in exception
-        ) {
-            const cause = (exception as { cause?: unknown }).cause;
-            if (this.isGrpcServiceError(cause)) {
-                return cause;
-            }
+        if (hasCause(exception) && this.isGrpcServiceError(exception.cause)) {
+            return exception.cause;
         }
 
         return null;
@@ -114,26 +96,7 @@ export class GrpcExceptionFilter implements ExceptionFilter {
             typeof error === 'object' &&
             error !== null &&
             'code' in error &&
-            typeof (error as GrpcServiceError).code === 'number'
+            typeof error.code === 'number'
         );
-    }
-
-    private parseDetails(raw: string): ParsedGrpcDetails {
-        try {
-            const parsed: unknown = JSON.parse(raw);
-            if (typeof parsed === 'object' && parsed !== null && 'message' in parsed) {
-                const record = parsed as Record<string, unknown>;
-                if (typeof record.message === 'string' || Array.isArray(record.message)) {
-                    return {
-                        code: typeof record.code === 'string' ? record.code : undefined,
-                        message: record.message,
-                    };
-                }
-            }
-        } catch {
-            return { code: undefined, message: raw };
-        }
-
-        return { message: raw };
     }
 }

@@ -1,1 +1,2 @@
-export * from './rpc-status.enum'
+export * from './error-code.enum';
+export * from './rpc-status.enum';

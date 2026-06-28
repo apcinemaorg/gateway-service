@@ -9,6 +9,8 @@ export class AuthController {
   public constructor(private readonly authGrpcClient: AuthGrpcClient) {}
   @Post('otp/send')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Send OTP', description: 'Sends an OTP code to the provided identifier' })
+  @ApiBadRequestResponse({ type: ErrorResponse, description: 'Invalid identifier or validation error' })
   public async sendOtp(@Body() dto: SendOtpRequest){
     return this.authGrpcClient.sendOtp(dto)
   }

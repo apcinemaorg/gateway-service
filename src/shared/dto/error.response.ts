@@ -1,6 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class ErrorResponse {
+export interface HttpErrorBody {
+    statusCode: number;
+    error: string;
+    code: string;
+    message: string | string[];
+}
+
+export class ErrorResponse implements HttpErrorBody {
     @ApiProperty({ example: 400 })
     public statusCode: number;
 
