@@ -8,9 +8,10 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 
+import { grpcToHttp } from '@apcinema/shared';
+
 import type { HttpErrorBody } from '../dto/error.response';
 import { ErrorCode } from '../enums/error-code.enum';
-import { grpcToHttp } from '../utils/grpc-to-http';
 import {
     createHttpError,
     createInternalError,
