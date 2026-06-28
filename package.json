@@ -20,7 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@apcinema/contracts": "^1.0.3",
+    "@apcinema/contracts": "file:../contracts",
     "@apcinema/core": "file:../core",
     "@apcinema/shared": "file:../common",
     "@grpc/grpc-js": "^1.14.4",
