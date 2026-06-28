@@ -1,2 +1,2 @@
-export * from './send-otp.request'
-export * from './verify-otp.requests'
+export * from './otp-identifier.request';
+export * from './verify-otp.requests';

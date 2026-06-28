@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 
-import { grpcToHttp } from '@apcinema/shared';
+import { grpcToHttp, parseRpcErrorPayload } from '@apcinema/shared';
 
 import type { HttpErrorBody } from '../dto/error.response';
 import { ErrorCode } from '../enums/error-code.enum';
@@ -16,7 +16,6 @@ import {
     createHttpError,
     createInternalError,
     normalizeHttpExceptionBody,
-    parseGrpcDetails,
 } from '../utils/http-error.util';
 
 interface GrpcServiceError {
@@ -69,7 +68,7 @@ export class GrpcExceptionFilter implements ExceptionFilter {
         }
 
         const statusCode = grpcToHttp[serviceError.code] ?? HttpStatus.INTERNAL_SERVER_ERROR;
-        const details = parseGrpcDetails(
+        const details = parseRpcErrorPayload(
             serviceError.details ?? serviceError.message ?? 'Unknown error',
         );
 

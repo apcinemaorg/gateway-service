@@ -3,11 +3,6 @@ import { HttpStatus } from '@nestjs/common';
 import type { HttpErrorBody } from '../dto/error.response';
 import { ErrorCode } from '../enums/error-code.enum';
 
-interface ParsedGrpcDetails {
-    code?: string;
-    message: string | string[];
-}
-
 function isHttpErrorBody(value: unknown): value is HttpErrorBody {
     if (typeof value !== 'object' || value === null) {
         return false;
@@ -79,30 +74,4 @@ export function normalizeHttpExceptionBody(
     }
 
     return createHttpError(statusCode, ErrorCode.HTTP_ERROR, fallbackMessage);
-}
-
-export function parseGrpcDetails(raw: string): ParsedGrpcDetails {
-    try {
-        const parsed: unknown = JSON.parse(raw);
-
-        if (typeof parsed !== 'object' || parsed === null || !('message' in parsed)) {
-            return { message: raw };
-        }
-
-        const { message } = parsed;
-
-        if (typeof message !== 'string' && !Array.isArray(message)) {
-            return { message: raw };
-        }
-
-        let code: string | undefined;
-
-        if ('code' in parsed && typeof parsed.code === 'string') {
-            code = parsed.code;
-        }
-
-        return { code, message };
-    } catch {
-        return { message: raw };
-    }
 }
