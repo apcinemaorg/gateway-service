@@ -1,30 +1,41 @@
-import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
-import { AuthServiceClient, LoginRequest, RegisterRequest, SendOtpRequest, VerifyOtpRequest } from "@apcinema/contracts/gen/auth";
-import type { ClientGrpc } from "@nestjs/microservices";
+import {
+    AuthServiceClient,
+    LoginRequest,
+    LoginResponse,
+    RegisterRequest,
+    RegisterResponse,
+    SendOtpRequest,
+    SendOtpResponse,
+    VerifyOtpRequest,
+    VerifyOtpResponse,
+} from '@apcinema/contracts/gen/auth';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import type { ClientGrpc } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class AuthGrpcClient implements OnModuleInit {
-    private authService: AuthServiceClient
+    private authService: AuthServiceClient;
 
-    public constructor(@Inject('AUTH_PACKAGE') private readonly client: ClientGrpc) { }
+    public constructor(@Inject('AUTH_PACKAGE') private readonly client: ClientGrpc) {}
 
     public onModuleInit(): void {
-        this.authService = this.client.getService<AuthServiceClient>('AuthService')
+        this.authService = this.client.getService<AuthServiceClient>('AuthService');
     }
 
-    public sendOtp(request: SendOtpRequest) {
-        return this.authService.sendOtp(request)
+    public sendOtp(request: SendOtpRequest): Promise<SendOtpResponse> {
+        return firstValueFrom(this.authService.sendOtp(request));
     }
 
-    public verifyOtp(request: VerifyOtpRequest) {
-        return this.authService.verifyOtp(request)
+    public verifyOtp(request: VerifyOtpRequest): Promise<VerifyOtpResponse> {
+        return firstValueFrom(this.authService.verifyOtp(request));
     }
 
-    public register(request: RegisterRequest) {
-        return this.authService.register(request)
+    public register(request: RegisterRequest): Promise<RegisterResponse> {
+        return firstValueFrom(this.authService.register(request));
     }
 
-    public login(request: LoginRequest) {
-        return this.authService.login(request)
+    public login(request: LoginRequest): Promise<LoginResponse> {
+        return firstValueFrom(this.authService.login(request));
     }
 }
