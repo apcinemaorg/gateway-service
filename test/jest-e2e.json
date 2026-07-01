@@ -1,15 +1,24 @@
 {
+  "preset": "ts-jest",
   "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": ".",
+  "rootDir": "..",
   "testEnvironment": "node",
-  "testRegex": ".e2e-spec.ts$",
-  "transform": {
-    "^.+\\.(t|j)s$": "ts-jest"
-  },
+  "testRegex": "test/.*\\.e2e-spec\\.ts$",
+  "transformIgnorePatterns": [],
   "moduleNameMapper": {
-    "^src/(.*)$": "<rootDir>/../src/$1",
-    "^@/(.*)$": "<rootDir>/../src/$1",
-    "^@prisma/generated$": "<rootDir>/../prisma/generated/client.ts",
-    "^@prisma/generated/(.*)$": "<rootDir>/../prisma/generated/$1"
+    "^@apcinema/shared$": "<rootDir>/../common/src/index.ts",
+    "^@nestjs/common$": "<rootDir>/node_modules/@nestjs/common",
+    "^@nestjs/core$": "<rootDir>/node_modules/@nestjs/core",
+    "^@nestjs/jwt$": "<rootDir>/node_modules/@nestjs/jwt",
+    "^src/(.*)$": "<rootDir>/src/$1",
+    "^(\\.\\.?/.+)\\.js$": "$1"
+  },
+  "transform": {
+    "^.+\\.(t|j)s$": [
+      "ts-jest",
+      {
+        "tsconfig": "<rootDir>/test/tsconfig.e2e.json"
+      }
+    ]
   }
 }

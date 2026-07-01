@@ -1,13 +1,22 @@
 import { Module } from '@nestjs/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
-import { getAuthGrpcClientOptions } from '@apcinema/shared';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { JwtModule } from '@nestjs/jwt';
+import { ACCESS_TOKEN_EXPIRES_IN, getAuthGrpcClientOptions } from '@apcinema/shared';
 
 import { AuthController } from './auth.controller';
 import { AuthGrpcClient } from './auth.grpc';
 
 @Module({
     imports: [
+        JwtModule.registerAsync({
+            global: true,
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => ({
+                secret: configService.getOrThrow<string>('JWT_SECRET'),
+                signOptions: { expiresIn: ACCESS_TOKEN_EXPIRES_IN },
+            }),
+        }),
         ClientsModule.registerAsync([
             {
                 name: 'AUTH_PACKAGE',

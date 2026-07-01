@@ -1,7 +1,13 @@
 import {
     AuthServiceClient,
+    GetMeRequest,
+    GetMeResponse,
     LoginRequest,
     LoginResponse,
+    LogoutRequest,
+    LogoutResponse,
+    RefreshRequest,
+    RefreshResponse,
     RegisterRequest,
     RegisterResponse,
     SendOtpRequest,
@@ -37,5 +43,17 @@ export class AuthGrpcClient implements OnModuleInit {
 
     public login(request: LoginRequest): Promise<LoginResponse> {
         return firstValueFrom(this.authService.login(request));
+    }
+
+    public refresh(request: RefreshRequest): Promise<RefreshResponse> {
+        return firstValueFrom(this.authService.refresh(request));
+    }
+
+    public logout(request: LogoutRequest): Promise<LogoutResponse> {
+        return firstValueFrom(this.authService.logout(request));
+    }
+
+    public getMe(request: GetMeRequest): Promise<GetMeResponse> {
+        return firstValueFrom(this.authService.getMe(request));
     }
 }

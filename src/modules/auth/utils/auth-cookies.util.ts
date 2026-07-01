@@ -1,12 +1,11 @@
-import type { Response } from 'express';
-
 import {
     ACCESS_TOKEN_COOKIE,
-    REFRESH_TOKEN_COOKIE,
     accessTokenCookieOptions,
     authCookieClearOptions,
+    REFRESH_TOKEN_COOKIE,
     refreshTokenCookieOptions,
-} from '../constants/auth-cookie.constants';
+} from '@apcinema/shared';
+import type { Response } from 'express';
 
 export function setAuthCookies(
     response: Response,
