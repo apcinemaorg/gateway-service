@@ -25,6 +25,13 @@ async function bootstrap() {
     const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
     SwaggerModule.setup('docs', app, swaggerDocument, {
         yamlDocumentUrl: '/openapi.yaml',
+        swaggerOptions: {
+            persistAuthorization: false,
+            requestInterceptor: (request: { credentials?: string }) => {
+                request.credentials = 'include';
+                return request;
+            },
+        },
     });
 
     const port = config.getOrThrow<number>('HTTP_PORT');

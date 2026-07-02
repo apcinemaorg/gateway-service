@@ -5,33 +5,25 @@ import { OtpIdentifierRequest } from './otp-identifier.request';
 
 export class RegisterRequest extends OtpIdentifierRequest {
     @ApiProperty({
-        description: 'The user password',
-        examples: ['SecurePass123'],
+        description: 'Account password',
+        minLength: 8,
+        example: 'password123',
     })
     @IsString()
-    @MinLength(8, { message: 'Password must be at least 8 characters' })
+    @MinLength(8)
     public password: string;
 
-    @ApiPropertyOptional({
-        description: 'The username',
-        examples: ['johndoe'],
-    })
+    @ApiPropertyOptional({ example: 'johndoe' })
     @IsOptional()
     @IsString()
     public username?: string;
 
-    @ApiPropertyOptional({
-        description: 'The first name',
-        examples: ['John'],
-    })
+    @ApiPropertyOptional({ example: 'John' })
     @IsOptional()
     @IsString()
     public firstName?: string;
 
-    @ApiPropertyOptional({
-        description: 'The last name',
-        examples: ['Doe'],
-    })
+    @ApiPropertyOptional({ example: 'Doe' })
     @IsOptional()
     @IsString()
     public lastName?: string;

@@ -3,8 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { getAuthGrpcClientOptions } from '@apcinema/shared';
 
-import { AuthController } from './auth.controller';
-import { AuthGrpcClient } from './auth.grpc';
+import { AccountController } from './account.controller';
+import { AccountGrpcClient } from './account.grpc';
 
 @Module({
     imports: [
@@ -21,7 +21,7 @@ import { AuthGrpcClient } from './auth.grpc';
             },
         ]),
     ],
-    controllers: [AuthController],
-    providers: [AuthGrpcClient],
+    controllers: [AccountController],
+    providers: [AccountGrpcClient],
 })
-export class AuthModule {}
+export class AccountModule {}

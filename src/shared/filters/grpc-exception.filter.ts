@@ -28,6 +28,17 @@ function hasCause(value: unknown): value is { cause: unknown } {
     return typeof value === 'object' && value !== null && 'cause' in value;
 }
 
+function isHttpException(exception: unknown): exception is HttpException {
+    return (
+        typeof exception === 'object' &&
+        exception !== null &&
+        'getStatus' in exception &&
+        typeof exception.getStatus === 'function' &&
+        'getResponse' in exception &&
+        typeof exception.getResponse === 'function'
+    );
+}
+
 @Catch()
 export class GrpcExceptionFilter implements ExceptionFilter {
     private readonly logger = new Logger(GrpcExceptionFilter.name);
@@ -45,7 +56,7 @@ export class GrpcExceptionFilter implements ExceptionFilter {
             return;
         }
 
-        if (exception instanceof HttpException) {
+        if (isHttpException(exception)) {
             const statusCode = exception.getStatus();
             const body = normalizeHttpExceptionBody(
                 statusCode,
