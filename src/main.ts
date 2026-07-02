@@ -45,4 +45,5 @@ async function bootstrap() {
     logger.log(`GatewayService is running on ${http.host}`);
     logger.log(`Swagger is running on ${http.host}/docs`);
 }
+
 bootstrap();

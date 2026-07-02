@@ -15,6 +15,7 @@ import {
 } from '@apcinema/shared';
 import { AccountModule } from 'src/modules/account/account.module';
 import { AuthModule } from 'src/modules/auth/auth.module';
+import { MovieModule } from 'src/modules/movie/movie.module';
 import { UserModule } from 'src/modules/user/user.module';
 
 import { AppController } from './app.controller';
@@ -38,6 +39,7 @@ import { AppService } from './app.service';
         AuthModule,
         AccountModule,
         UserModule,
+        MovieModule,
     ],
     controllers: [AppController],
     providers: [
