@@ -2,7 +2,15 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { ACCESS_TOKEN_EXPIRES_IN, provideJwtAuthGuard } from '@apcinema/shared';
+import {
+    createAppConfigOptions,
+    createJwtModuleOptions,
+    gatewayConfigs,
+    getRegisteredConfig,
+    jwtConfig,
+    provideJwtAuthGuard,
+    type JwtConfig,
+} from '@apcinema/shared';
 import { AccountModule } from 'src/modules/account/account.module';
 import { AuthModule } from 'src/modules/auth/auth.module';
 
@@ -11,17 +19,18 @@ import { AppService } from './app.service';
 
 @Module({
     imports: [
-        ConfigModule.forRoot({
-            isGlobal: true,
-            envFilePath: '.env',
-        }),
+        ConfigModule.forRoot(createAppConfigOptions(gatewayConfigs)),
         JwtModule.registerAsync({
             global: true,
             inject: [ConfigService],
-            useFactory: (configService: ConfigService) => ({
-                secret: configService.getOrThrow<string>('JWT_SECRET'),
-                signOptions: { expiresIn: ACCESS_TOKEN_EXPIRES_IN },
-            }),
+            useFactory: (configService: ConfigService) => {
+                const jwt = getRegisteredConfig<JwtConfig>(
+                    configService,
+                    jwtConfig.KEY,
+                );
+
+                return createJwtModuleOptions(jwt);
+            },
         }),
         AuthModule,
         AccountModule,
