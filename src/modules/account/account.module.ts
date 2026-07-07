@@ -20,7 +20,7 @@ import { AccountGrpcClient } from './account.grpc';
                 useFactory: (configService: ConfigService) => {
                     const authGrpc = getRegisteredConfig<AuthGrpcConfig>(
                         configService,
-                        authGrpcConfig.KEY,
+                        authGrpcConfig,
                     );
 
                     return createAuthGrpcClientRegisterOptions(authGrpc);

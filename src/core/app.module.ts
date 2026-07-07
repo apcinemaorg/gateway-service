@@ -26,7 +26,7 @@ import { AppService } from './app.service';
             useFactory: (configService: ConfigService) => {
                 const jwt = getRegisteredConfig<JwtConfig>(
                     configService,
-                    jwtConfig.KEY,
+                    jwtConfig,
                 );
 
                 return createJwtModuleOptions(jwt);

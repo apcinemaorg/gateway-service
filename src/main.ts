@@ -18,7 +18,7 @@ import { GrpcExceptionFilter } from './shared/filters/grpc-exception.filter';
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     const configService = app.get(ConfigService);
-    const http = getRegisteredConfig<HttpConfig>(configService, httpConfig.KEY);
+    const http = getRegisteredConfig<HttpConfig>(configService, httpConfig);
     const logger = new Logger('GatewayService');
 
     app.use(cookieParser());
