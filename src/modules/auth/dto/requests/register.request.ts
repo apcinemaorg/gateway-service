@@ -27,4 +27,9 @@ export class RegisterRequest extends OtpIdentifierRequest {
     @IsOptional()
     @IsString()
     public lastName?: string;
+
+    @ApiPropertyOptional({ example: 'John Doe' })
+    @IsOptional()
+    @IsString()
+    public displayName?: string;
 }

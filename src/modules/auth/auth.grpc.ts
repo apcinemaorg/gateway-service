@@ -53,18 +53,7 @@ export class AuthGrpcClient implements OnModuleInit {
         return firstValueFrom(this.authService.logout(request));
     }
 
-    public async getMe(request: GetMeRequest): Promise<GetMeResponse> {
-        const response = await firstValueFrom(this.authService.getMe(request));
-
-        return {
-            id: response.id,
-            phone: response.phone,
-            email: response.email,
-            username: response.username,
-            firstName: response.firstName,
-            lastName: response.lastName,
-            isPhoneVerified: response.isPhoneVerified,
-            isEmailVerified: response.isEmailVerified,
-        };
+    public getMe(request: GetMeRequest): Promise<GetMeResponse> {
+        return firstValueFrom(this.authService.getMe(request));
     }
 }

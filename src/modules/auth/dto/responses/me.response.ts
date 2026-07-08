@@ -10,14 +10,8 @@ export class MeResponse {
     @ApiPropertyOptional({ example: 'user@example.com' })
     public email?: string;
 
-    @ApiPropertyOptional({ example: 'johndoe' })
-    public username?: string;
-
-    @ApiPropertyOptional({ example: 'John' })
-    public firstName?: string;
-
-    @ApiPropertyOptional({ example: 'Doe' })
-    public lastName?: string;
+    @ApiProperty({ example: 'user', enum: ['user', 'moderator', 'admin'] })
+    public role: string;
 
     @ApiProperty({ example: true })
     public isPhoneVerified: boolean;
